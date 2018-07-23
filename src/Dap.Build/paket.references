@@ -9,4 +9,3 @@ group Build
     Fake.IO.Zip
     Fake.Net.Http
     Fake.Tools.Git
-    dotnet-sourcelink
