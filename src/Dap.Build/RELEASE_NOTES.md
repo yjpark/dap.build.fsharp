@@ -1,3 +1,6 @@
+## 0.6.4
+* Update with Fake 5.3.1
+
 ## 0.6.3
 * Generate .sha512 file when inject
 * Save original version before inject
