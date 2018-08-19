@@ -10,7 +10,6 @@ group Build
     source https://www.nuget.org/api/v2
     framework: netstandard2.0
 
-    clitool dotnet-fake
     nuget Fake.Core.Target
     nuget Fake.Core.Process
     nuget Fake.Core.String
