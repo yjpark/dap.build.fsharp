@@ -56,6 +56,9 @@ let release = {
     CreateInjectTargets = true
 }
 
+let trace info =
+    Trace.traceFAKE "    -> %s" info
+
 let checkVersion proj (releaseNotes : ReleaseNotes.ReleaseNotes) =
     let versionRegex = Regex("<Version>(.*?)</Version>", RegexOptions.IgnoreCase)
     File.ReadLines(proj)
@@ -132,8 +135,8 @@ let extractNupkg path nupkgPath =
     let hashPath = nupkgPath + ".sha512"
     File.writeNew hashPath [hash]
     Zip.unzip path nupkgPath
-    Trace.traceFAKE "    -> %s" nupkgPath
-    Trace.traceFAKE "    -> %s" hash
+    trace nupkgPath
+    trace hash
     hash
 
 let doInject (package : string) (version : string) (pkg : string) =
@@ -173,7 +176,7 @@ let doRecover (package : string) (version : string) =
     if DirectoryInfo.exists (DirectoryInfo.ofPath originalPath) then
         Shell.cleanDir path
         Shell.copyDir path originalPath (fun _ -> true)
-        Trace.traceFAKE "    -> %s" path
+        trace path
 
 let recover proj =
     Trace.traceFAKE "Recover NuGet Project: %s" proj
