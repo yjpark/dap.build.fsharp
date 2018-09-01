@@ -16,6 +16,9 @@ let Clean = "Clean"
 let Restore = "Restore"
 
 [<Literal>]
+let Prepare = "Prepare"
+
+[<Literal>]
 let Build = "Build"
 
 [<Literal>]
@@ -220,3 +223,16 @@ let create (options : Options) projects =
 let createAndRun (options : Options) projects =
     create options projects
     Target.runOrDefault Build
+
+let createPrepare (project : string) (prepare : string -> unit) =
+    let (label, prefix) =
+        if project = "" then
+            ("Projects", "")
+        else
+            (project, project + ":")
+    Target.setLastDescription <| sprintf "Restore %s" label
+    Target.create (prefix + Prepare) (fun _ ->
+        prepare project
+    )
+    prefix + Prepare
+        ==> prefix + Build
