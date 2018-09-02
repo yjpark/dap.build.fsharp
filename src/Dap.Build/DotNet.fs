@@ -224,7 +224,7 @@ let createAndRun (options : Options) projects =
     create options projects
     Target.runOrDefault Build
 
-let createPrepare (project : string) (prepare : string -> unit) (otherProjects : string list) =
+let createPrepare (prepare : string -> unit) (project : string) =
     let (label, prefix) =
         if project = "" then
             ("Projects", "")
@@ -237,10 +237,7 @@ let createPrepare (project : string) (prepare : string -> unit) (otherProjects :
     prefix + Prepare
         ==> prefix + Build
     |> ignore
-    otherProjects
-    |> List.iter (fun other ->
-        if other <> "" then
-            prefix + Prepare
-                ==> other + ":" + Build
-            |> ignore
-    )
+
+let createPrepares (prepare : string -> unit) (projects : string list) =
+    projects
+    |> List.iter (createPrepare prepare)
