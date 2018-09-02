@@ -230,7 +230,7 @@ let createPrepare (prepare : string -> unit) (project : string) =
             ("Projects", "")
         else
             (project, project + ":")
-    Target.setLastDescription <| sprintf "Restore %s" label
+    Target.setLastDescription <| sprintf "Prepare %s" label
     Target.create (prefix + Prepare) (fun _ ->
         prepare project
     )
