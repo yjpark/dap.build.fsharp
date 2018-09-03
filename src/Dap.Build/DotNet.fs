@@ -224,20 +224,42 @@ let createAndRun (options : Options) projects =
     create options projects
     Target.runOrDefault Build
 
-let createPrepare (prepare : string -> unit) (project : string) =
+let createPrepare' (noPrefix : bool) (action : unit -> unit) (projects : string list) =
     let (label, prefix) =
-        if project = "" then
-            ("Projects", "")
+        if noPrefix then
+            (sprintf "%i Projects" projects.Length, "")
         else
+            let project = projects |> List.head
             (project, project + ":")
     Target.setLastDescription <| sprintf "Prepare %s" label
     Target.create (prefix + Prepare) (fun _ ->
-        prepare project
+        action ()
     )
     prefix + Prepare
         ==> prefix + Build
     |> ignore
+    (label, prefix)
 
-let createPrepares (prepare : string -> unit) (projects : string list) =
+let createPrepareTarget (prepares : (string list * (unit -> unit)) list) =
+    let projects =
+        prepares
+        |> List.map fst
+        |> List.concat
+    let action = fun () ->
+        prepares
+        |> List.map snd
+        |> List.iter (fun action -> action ())
+    createPrepare' true action projects
+    |> ignore
+
+let createOnePrepareTarget ((projects, action) : string list * (unit -> unit)) =
     projects
-    |> List.iter (createPrepare prepare)
+    |> List.iter (fun project ->
+        createPrepare' false action [project]
+        |> ignore
+    )
+
+let createPrepares (prepares : (string list * (unit -> unit)) list) =
+    createPrepareTarget prepares
+    prepares
+    |> List.iter createOnePrepareTarget
