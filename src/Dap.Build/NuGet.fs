@@ -271,7 +271,7 @@ let createPerProjectTarget options feed proj =
 
 let create (options : Options) feed projects =
     createTargets options feed projects
-    if options.DotNet.CreatePerProjectTargets && Seq.length projects > 1 then
+    if options.DotNet.CreatePerProjectTargets then
         projects
         |> Seq.iter (createPerProjectTarget options feed)
 

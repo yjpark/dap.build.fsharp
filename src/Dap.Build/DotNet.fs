@@ -147,12 +147,17 @@ let publish (options : Options) proj =
 
 let getLabelAndPrefix (noPrefix : bool) (projects : seq<string>) =
     let len = Seq.length projects
-    if len = 1 then
+    if len = 0 then
+        failwith "Projects Is Empty"
+    elif noPrefix then
+        if len = 1 then
+            (sprintf "%i Project" len, "")
+        else
+            (sprintf "%i Projects" len, "")
+    else
         let label = getPackage(Seq.head projects)
         let prefix = if noPrefix then "" else label + ":"
         (label, prefix)
-    else
-        (sprintf "%i Projects" len, "")
 
 let createTargets' (options : Options) (noPrefix : bool) (projects : seq<string>) =
     let (label, prefix) = getLabelAndPrefix noPrefix projects
@@ -216,7 +221,7 @@ let createPerProjectTarget options proj =
 
 let create (options : Options) projects =
     createTargets options projects
-    if options.CreatePerProjectTargets && Seq.length projects > 1 then
+    if options.CreatePerProjectTargets then
         projects
         |> Seq.iter (createPerProjectTarget options)
 
