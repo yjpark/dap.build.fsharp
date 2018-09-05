@@ -163,7 +163,7 @@ let doInject (package : string) (version : string) (pkg : string) =
     Shell.copyFile nupkgPath pkg
     let hash = extractNupkg path nupkgPath
     if oldHash <> hash then
-        trace "Injected As New Version"
+        traceSuccess "Injected As New Version"
     else
         trace "Not Changed"
     File.writeNew injectPath [
@@ -217,7 +217,7 @@ let doFetch (feed : Feed) (package : string) (version : string) =
         sprintf "Previous Hash: %s" oldHash
     ]
     if oldHash <> hash then
-        trace "Updated To New Version"
+        traceSuccess "Updated To New Version"
     else
         trace "Not Changed"
     let originalPath = getOriginalNugetCachePath package version
