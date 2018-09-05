@@ -56,9 +56,6 @@ let release = {
     CreateInjectTargets = true
 }
 
-let trace info =
-    Trace.traceFAKE "    -> %s" info
-
 let checkVersion proj (releaseNotes : ReleaseNotes.ReleaseNotes) =
     let versionRegex = Regex("<Version>(.*?)</Version>", RegexOptions.IgnoreCase)
     File.ReadLines(proj)
@@ -126,18 +123,28 @@ let getSha512Stream (stream:Stream) =
     use hasher = System.Security.Cryptography.SHA512.Create() :> System.Security.Cryptography.HashAlgorithm
     Convert.ToBase64String(hasher.ComputeHash(stream))
 
-let getSha512File (filePath:string) =
+let getSha512Value (filePath:string) =
     use stream = File.OpenRead(filePath)
     getSha512Stream stream
 
 let extractNupkg path nupkgPath =
-    let hash = getSha512File nupkgPath
+    let hash = getSha512Value nupkgPath
     let hashPath = nupkgPath + ".sha512"
     File.writeNew hashPath [hash]
     Zip.unzip path nupkgPath
     trace nupkgPath
     trace hash
     hash
+
+let getCurrentHash nupkgPath =
+    let hashPath = nupkgPath + ".sha512"
+    if File.exists hashPath then
+        let content = File.ReadAllLines hashPath
+        if content.Length > 0 then
+            content |> Array.head
+        else ""
+    else
+        "Not Exist"
 
 let doInject (package : string) (version : string) (pkg : string) =
     let path = getNugetCachePath package <| Some version
@@ -151,12 +158,18 @@ let doInject (package : string) (version : string) (pkg : string) =
         Directory.ensure originalPath
         Shell.cleanDir originalPath
         Shell.copyDir originalPath path (fun _ -> true)
+    let oldHash = getCurrentHash nupkgPath
     Shell.cleanDir path
     Shell.copyFile nupkgPath pkg
     let hash = extractNupkg path nupkgPath
+    if oldHash <> hash then
+        trace "Injected As New Version"
+    else
+        trace "Not Changed"
     File.writeNew injectPath [
         sprintf "Injected At: %A" System.DateTime.Now
         sprintf "SHA512 Hash: %s" hash
+        sprintf "Previous Hash: %s" oldHash
         pkg
     ]
 
@@ -187,20 +200,26 @@ let recover proj =
 
 let doFetch (feed : Feed) (package : string) (version : string) =
     let path = getNugetCachePath package <| Some version
-    Shell.cleanDir path
     let nupkgName = sprintf "%s.%s.nupkg" package version
     let nupkgName = nupkgName.ToLower ()
     let nupkgPath = Path.Combine [| path ; nupkgName |]
     let url = sprintf "%s/package/%s/%s" feed.Source package version
+    let oldHash = getCurrentHash nupkgPath
+    Shell.cleanDir path
     Http.downloadFile nupkgPath url
     |> ignore
     let hash = extractNupkg path nupkgPath
     let fetchPath = Path.Combine [| path ; "dap.build_fetch.txt" |]
     File.writeNew fetchPath [
         sprintf "Download At: %A" System.DateTime.Now
+        sprintf "Download From: %s" url
         sprintf "SHA512 Hash: %s" hash
-        url
+        sprintf "Previous Hash: %s" oldHash
     ]
+    if oldHash <> hash then
+        trace "Updated To New Version"
+    else
+        trace "Not Changed"
     let originalPath = getOriginalNugetCachePath package version
     if DirectoryInfo.exists (DirectoryInfo.ofPath originalPath) then
         Shell.deleteDir originalPath
