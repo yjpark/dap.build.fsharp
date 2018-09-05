@@ -132,8 +132,8 @@ let extractNupkg path nupkgPath =
     let hashPath = nupkgPath + ".sha512"
     File.writeNew hashPath [hash]
     Zip.unzip path nupkgPath
-    trace nupkgPath
-    trace hash
+    traceProgress nupkgPath
+    traceProgress hash
     hash
 
 let getCurrentHash nupkgPath =
@@ -165,7 +165,7 @@ let doInject (package : string) (version : string) (pkg : string) =
     if oldHash <> hash then
         traceSuccess "Injected As New Version"
     else
-        trace "Not Changed"
+        traceProgress "Not Changed"
     File.writeNew injectPath [
         sprintf "Injected At: %A" System.DateTime.Now
         sprintf "SHA512 Hash: %s" hash
@@ -189,7 +189,7 @@ let doRecover (package : string) (version : string) =
     if DirectoryInfo.exists (DirectoryInfo.ofPath originalPath) then
         Shell.cleanDir path
         Shell.copyDir path originalPath (fun _ -> true)
-        trace path
+        traceProgress path
 
 let recover proj =
     Trace.traceFAKE "Recover NuGet Project: %s" proj
@@ -219,7 +219,7 @@ let doFetch (feed : Feed) (package : string) (version : string) =
     if oldHash <> hash then
         traceSuccess "Updated To New Version"
     else
-        trace "Not Changed"
+        traceProgress "Not Changed"
     let originalPath = getOriginalNugetCachePath package version
     if DirectoryInfo.exists (DirectoryInfo.ofPath originalPath) then
         Shell.deleteDir originalPath

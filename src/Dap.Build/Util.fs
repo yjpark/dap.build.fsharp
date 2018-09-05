@@ -3,7 +3,7 @@ module Dap.Build.Util
 
 open Fake.Core
 
-let trace info =
+let traceProgress info =
     Trace.traceFAKE "    -> %s" info
 
 let traceSuccess info =
