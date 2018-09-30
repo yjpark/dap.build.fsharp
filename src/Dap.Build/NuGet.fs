@@ -246,8 +246,12 @@ let push (feed : Feed) proj =
         if not result.OK then
             failwith <| sprintf "Push nupkg Failed: %s -> [%i] %A %A" pkgPath result.ExitCode result.Messages result.Errors
 
-let createTargets' (options : Options) noPrefix feed projects =
-    let (label, prefix) = DapDotNet.createTargets' options.DotNet noPrefix projects
+let createTargets' (extendOnly : bool) (options : Options) noPrefix feed projects =
+    let (label, prefix) =
+        if extendOnly then
+            DapDotNet.getLabelAndPrefix noPrefix projects
+        else
+            DapDotNet.createTargets' options.DotNet noPrefix projects
     Target.setLastDescription <| sprintf "Fetch %s" label
     Target.create (prefix + Fetch) (fun _ ->
         projects
@@ -283,10 +287,10 @@ let createTargets' (options : Options) noPrefix feed projects =
         |> ignore
 
 let createTargets options =
-    createTargets' options true
+    createTargets' false options true
 
 let createPerProjectTarget options feed proj =
-    createTargets' options false feed [proj]
+    createTargets' false options false feed [proj]
 
 let create (options : Options) feed projects =
     createTargets options feed projects
@@ -297,3 +301,16 @@ let create (options : Options) feed projects =
 let createAndRun (options : Options) feed projects =
     create options feed projects
     Target.runOrDefault Pack
+
+let extendTargets options =
+    createTargets' true options true
+
+let extendPerProjectTarget options feed proj =
+    createTargets' true options false feed [proj]
+
+let extend (options : Options) feed projects =
+    extendTargets options feed projects
+    if options.DotNet.CreatePerProjectTargets then
+        projects
+        |> Seq.iter (extendPerProjectTarget options feed)
+
