@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-cd `dirname $0`
-cd ..
-
-git update-index --assume-unchanged paket.lock
-
