@@ -25,9 +25,9 @@ type Options = {
 }
 
 let options devCleans prodCleans = {
-    DevConfig = "webpack.config.dev.js"
+    DevConfig = "webpack.config.js"
     DevCleans = devCleans
-    ProdConfig = "webpack.config.prod.js"
+    ProdConfig = "webpack.config.js"
     ProdCleans = prodCleans
 }
 

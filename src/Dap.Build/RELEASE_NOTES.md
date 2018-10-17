@@ -1,3 +1,6 @@
+## 0.6.5
+* Change default config for Fable
+
 ## 0.6.4
 * Update with Fake 5.7.2
 

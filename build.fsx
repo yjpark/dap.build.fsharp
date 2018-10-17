@@ -10,7 +10,7 @@ open Fake.IO.Globbing.Operators
 module NuGet = Dap.Build.NuGet
 
 let feed : NuGet.Feed = {
-    NuGet.Source = "https://www.nuget.org/api/v2"
+    NuGet.Source = "https://www.nuget.org/api/v2/package"
     NuGet.ApiKey = NuGet.Environment "API_KEY_nuget_org"
 }
 
