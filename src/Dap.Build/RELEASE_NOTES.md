@@ -1,3 +1,6 @@
+## 0.6.6
+* Support both nuget.org and proget feeds
+
 ## 0.6.5
 * Change default config for Fable
 
