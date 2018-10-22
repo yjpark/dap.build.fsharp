@@ -9,10 +9,10 @@ open Fake.IO.Globbing.Operators
 #load "src/Dap.Build/NuGet.fs"
 module NuGet = Dap.Build.NuGet
 
-let feed : NuGet.Feed = {
-    NuGet.Source = "https://www.nuget.org/api/v2/package"
-    NuGet.ApiKey = NuGet.Environment "API_KEY_nuget_org"
-}
+let feed =
+    NuGet.Feed.Create (
+        apiKey = NuGet.Environment "API_KEY_nuget_org"
+    )
 
 let projects =
     !! "src/Dap.Build/*.fsproj"

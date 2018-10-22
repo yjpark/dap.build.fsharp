@@ -36,10 +36,32 @@ type ApiKey =
     | Plain of string
     | NoAuth
 
+type NugetServer =
+    | NugetOrg
+    | ProGet of string
+
 type Feed = {
-    Source : string
+    Server : NugetServer
     ApiKey : ApiKey
-}
+} with
+    static member Create (apiKey : ApiKey, ?server : NugetServer) =
+        let server = server |> Option.defaultValue NugetOrg
+        {
+            Server = server
+            ApiKey = apiKey
+        }
+    member this.FetchUrl =
+        match this.Server with
+        | NugetOrg ->
+            "https://www.nuget.org/api/v2/package"
+        | ProGet url ->
+            sprintf "%s/package" url
+    member this.PushSource =
+        match this.Server with
+        | NugetOrg ->
+            "https://www.nuget.org/api/v2/package"
+        | ProGet url ->
+            url
 
 type Options = {
     DotNet : DapDotNet.Options
@@ -203,7 +225,7 @@ let doFetch (feed : Feed) (package : string) (version : string) =
     let nupkgName = sprintf "%s.%s.nupkg" package version
     let nupkgName = nupkgName.ToLower ()
     let nupkgPath = Path.Combine [| path ; nupkgName |]
-    let url = sprintf "%s/package/%s/%s" feed.Source package version
+    let url = sprintf "%s/%s/%s" feed.FetchUrl package version
     let oldHash = getCurrentHash nupkgPath
     Shell.cleanDir path
     Http.downloadFile nupkgPath url
@@ -240,7 +262,7 @@ let push (feed : Feed) proj =
     |> Array.find (fun pkg -> pkg.Contains(releaseNotes.NugetVersion))
     |> (fun pkg ->
         pkgPath <- pkg
-        sprintf "push %s -s %s%s" pkg feed.Source <| getApiKeyParam feed.ApiKey
+        sprintf "push %s -s %s%s" pkg feed.PushSource <| getApiKeyParam feed.ApiKey
     )|> DotNet.exec id "nuget"
     |> fun result ->
         if not result.OK then
