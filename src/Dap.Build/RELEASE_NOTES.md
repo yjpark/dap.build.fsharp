@@ -1,3 +1,6 @@
+## 0.6.7
+* Support mixed debug and release configuration
+
 ## 0.6.6
 * Support both nuget.org and proget feeds
 

@@ -63,8 +63,9 @@ type Feed = {
         | ProGet url ->
             url
 
+[<NoComparison>]
 type Options = {
-    DotNet : DapDotNet.Options
+    DotNet : DapDotNet.IOptions
     CreateInjectTargets : bool
 }
 
@@ -75,6 +76,11 @@ let debug = {
 
 let release = {
     DotNet = DapDotNet.release
+    CreateInjectTargets = true
+}
+
+let mixed (releasingProjects)  : Options = {
+    DotNet = DapDotNet.mixed releasingProjects
     CreateInjectTargets = true
 }
 
@@ -116,7 +122,7 @@ let pack (options : Options) proj =
         let releaseNotes = loadReleaseNotes proj
         let pkgReleaseNotes = sprintf "/p:PackageReleaseNotes=\"%s\"" (String.toLines releaseNotes.Notes)
         { options' with
-            Configuration = options.DotNet.Configuration
+            Configuration = options.DotNet.GetConfiguration proj
             NoBuild = true
             Common =
                 { options'.Common with
@@ -200,7 +206,7 @@ let inject (options : Options) proj =
     let dir = Path.GetDirectoryName(proj)
     let package = Path.GetFileName(dir)
     let releaseNotes = loadReleaseNotes proj
-    let folder = DapDotNet.getConfigFolder options.DotNet.Configuration
+    let folder = DapDotNet.getConfigFolder <| options.DotNet.GetConfiguration proj
     Directory.GetFiles(dir </> "bin" </> folder, "*.nupkg")
     |> Array.find (fun pkg -> pkg.Contains(releaseNotes.NugetVersion))
     |> doInject package releaseNotes.NugetVersion

@@ -30,21 +30,42 @@ let WatchRun = "WatchRun"
 [<Literal>]
 let Publish = "Publish"
 
+type IOptions =
+    abstract CreatePerProjectTargets : bool with get
+    abstract GetConfiguration : string -> DotNet.BuildConfiguration
+
 type Options = {
     UseDebugConfig : bool
     CreatePerProjectTargets : bool
 } with
-    member this.Configuration =
-        if this.UseDebugConfig then DotNet.Debug else DotNet.Release
+    interface IOptions with
+        member this.CreatePerProjectTargets = this.CreatePerProjectTargets
+        member this.GetConfiguration _proj =
+            if this.UseDebugConfig then DotNet.Debug else DotNet.Release
 
-let debug = {
+let debug : Options = {
     UseDebugConfig = true
     CreatePerProjectTargets = true
 }
 
-let release = {
+let release : Options = {
     UseDebugConfig = false
     CreatePerProjectTargets = true
+}
+
+type MixedOptions = {
+    CreatePerProjectTargets : bool
+    ReleasingProjects : string list
+} with
+    interface IOptions with
+        member this.CreatePerProjectTargets = this.CreatePerProjectTargets
+        member this.GetConfiguration proj =
+            let releasing = List.contains proj this.ReleasingProjects
+            if releasing then DotNet.Release else DotNet.Debug
+
+let mixed (releasingProjects)  : MixedOptions = {
+    CreatePerProjectTargets = true
+    ReleasingProjects = releasingProjects
 }
 
 let getConfigFolder (config : DotNet.BuildConfiguration) =
@@ -69,7 +90,7 @@ let isRunnable proj =
             let v = m.Groups.[1].Value
             v.ToLower () = "exe"
 
-let clean (_options : Options) proj =
+let clean (_options : IOptions) proj =
     Trace.traceFAKE "Clean Project: %s" proj
     let dir = Path.GetDirectoryName(proj)
     Shell.cleanDirs [
@@ -77,7 +98,7 @@ let clean (_options : Options) proj =
         Path.Combine [| dir ; "obj" |]
     ]
 
-let restore (_options : Options) (noDependencies : bool) proj =
+let restore (_options : IOptions) (noDependencies : bool) proj =
     Trace.traceFAKE "Restore Project: %s" proj
     let setOptions = fun (options' : DotNet.RestoreOptions) ->
         if noDependencies then
@@ -91,14 +112,14 @@ let restore (_options : Options) (noDependencies : bool) proj =
             options'
     DotNet.restore setOptions proj
 
-let build (options : Options) (noDependencies : bool) proj =
+let build (options : IOptions) (noDependencies : bool) proj =
     Trace.traceFAKE "Build Project: %s" proj
     let setOptions = fun (options' : DotNet.BuildOptions) ->
         let mutable param = "--no-restore"
         if noDependencies then
             param <- sprintf "%s --no-dependencies" param
         { options' with
-            Configuration = options.Configuration
+            Configuration = options.GetConfiguration proj
             Common =
                 { options'.Common with
                     CustomParams = Some param
@@ -106,7 +127,7 @@ let build (options : Options) (noDependencies : bool) proj =
         }
     DotNet.build setOptions proj
 
-let private run' (cmd : string) (options : Options) proj =
+let private run' (cmd : string) (options : IOptions) proj =
     Trace.traceFAKE "Run Project: %s" proj
     let setOptions = fun (options' : DotNet.Options) ->
         { options' with
@@ -120,26 +141,26 @@ let private run' (cmd : string) (options : Options) proj =
     | None ->
         Trace.traceFAKE "    Pass Args by Set Environment: %s" key
         ""
-    |> sprintf "--no-build --configuration %s -- %s" (getConfigFolder options.Configuration)
+    |> sprintf "--no-build --configuration %s -- %s" (getConfigFolder (options.GetConfiguration proj))
     |> DotNet.exec setOptions cmd
     |> fun result ->
         if not result.OK then
             failwith <| sprintf "Run Project Failed: %s -> [%i] %A %A" package result.ExitCode result.Messages result.Errors
 
-let run (options : Options) proj =
+let run (options : IOptions) proj =
     run' "run" options proj
 
-let watchRun (options : Options) proj =
+let watchRun (options : IOptions) proj =
     run' "watch run" options proj
 
-let publish (options : Options) proj =
+let publish (options : IOptions) proj =
     Trace.traceFAKE "Publish Project: %s" proj
     let setOptions = fun (options' : DotNet.Options) ->
         { options' with
             WorkingDirectory = Path.GetDirectoryName(proj)
         }
     let package = getPackage proj
-    sprintf "--no-build --configuration %s" (getConfigFolder options.Configuration)
+    sprintf "--no-build --configuration %s" (getConfigFolder (options.GetConfiguration proj))
     |> DotNet.exec setOptions "publish"
     |> fun result ->
         if not result.OK then
@@ -159,7 +180,7 @@ let getLabelAndPrefix (noPrefix : bool) (projects : seq<string>) =
         let prefix = if noPrefix then "" else label + ":"
         (label, prefix)
 
-let createTargets' (options : Options) (noPrefix : bool) (projects : seq<string>) =
+let createTargets' (options : IOptions) (noPrefix : bool) (projects : seq<string>) =
     let (label, prefix) = getLabelAndPrefix noPrefix projects
     Target.setLastDescription <| sprintf "Clean %s" label
     Target.create (prefix + Clean) (fun _ ->
@@ -219,13 +240,13 @@ let createPerProjectTarget options proj =
     createTargets' options false [proj]
     |> ignore
 
-let create (options : Options) projects =
+let create (options : IOptions) projects =
     createTargets options projects
     if options.CreatePerProjectTargets then
         projects
         |> Seq.iter (createPerProjectTarget options)
 
-let createAndRun (options : Options) projects =
+let createAndRun (options : IOptions) projects =
     create options projects
     Target.runOrDefault Build
 
