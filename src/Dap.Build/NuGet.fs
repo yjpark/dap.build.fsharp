@@ -67,7 +67,10 @@ type Feed = {
 type Options = {
     DotNet : DapDotNet.IOptions
     CreateInjectTargets : bool
-}
+} with
+    interface DapDotNet.IOptions with
+        member this.CreatePerProjectTargets = this.DotNet.CreatePerProjectTargets
+        member this.GetConfiguration proj = this.DotNet.GetConfiguration proj
 
 let debug = {
     DotNet = DapDotNet.debug

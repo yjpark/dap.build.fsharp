@@ -55,12 +55,12 @@ let release : Options = {
 
 type MixedOptions = {
     CreatePerProjectTargets : bool
-    ReleasingProjects : string list
+    ReleasingProjects : string seq
 } with
     interface IOptions with
         member this.CreatePerProjectTargets = this.CreatePerProjectTargets
         member this.GetConfiguration proj =
-            let releasing = List.contains proj this.ReleasingProjects
+            let releasing = Seq.contains proj this.ReleasingProjects
             if releasing then DotNet.Release else DotNet.Debug
 
 let mixed (releasingProjects)  : MixedOptions = {
