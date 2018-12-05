@@ -53,6 +53,7 @@ let release : Options = {
     CreatePerProjectTargets = true
 }
 
+[<NoComparison>]
 type MixedOptions = {
     CreatePerProjectTargets : bool
     ReleasingProjects : string seq
