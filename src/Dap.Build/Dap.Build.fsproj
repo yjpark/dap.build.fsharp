@@ -5,7 +5,7 @@
     <PackageProjectUrl>https://github.com/yjpark/dap.build.fsharp</PackageProjectUrl>
     <PackageTags>fsharp;dap;</PackageTags>
     <Authors>YJ Park</Authors>
-    <Version>0.6.7</Version>
+    <Version>0.6.8</Version>
     <Description>Fake tasks for lib and app delevelopment</Description>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>

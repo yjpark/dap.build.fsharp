@@ -1,3 +1,6 @@
+## 0.6.8
+* Remove Recover target which might cause inconsistent state and can be replaced by fetch or inject
+
 ## 0.6.7
 * Support mixed debug and release configuration
 

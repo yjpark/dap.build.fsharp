@@ -28,9 +28,6 @@ let Develop = "Develop"
 [<Literal>]
 let Inject = "Inject"
 
-[<Literal>]
-let Recover = "Recover"
-
 type ApiKey =
     | Environment of string
     | Plain of string
@@ -214,21 +211,6 @@ let inject (options : Options) proj =
     |> Array.find (fun pkg -> pkg.Contains(releaseNotes.NugetVersion))
     |> doInject package releaseNotes.NugetVersion
 
-let doRecover (package : string) (version : string) =
-    let path = getNugetCachePath package <| Some version
-    let originalPath = getOriginalNugetCachePath package version
-    if DirectoryInfo.exists (DirectoryInfo.ofPath originalPath) then
-        Shell.cleanDir path
-        Shell.copyDir path originalPath (fun _ -> true)
-        traceProgress path
-
-let recover proj =
-    Trace.traceFAKE "Recover NuGet Project: %s" proj
-    let dir = Path.GetDirectoryName(proj)
-    let package = Path.GetFileName(dir)
-    let releaseNotes = loadReleaseNotes proj
-    doRecover package releaseNotes.NugetVersion
-
 let doFetch (feed : Feed) (package : string) (version : string) =
     let path = getNugetCachePath package <| Some version
     let nupkgName = sprintf "%s.%s.nupkg" package version
@@ -307,11 +289,6 @@ let createTargets' (extendOnly : bool) (options : Options) noPrefix feed project
         Target.create (prefix + Inject) (fun _ ->
             projects
             |> Seq.iter (inject options)
-        )
-        Target.setLastDescription <| sprintf "Recover %s" label
-        Target.create (prefix + Recover) (fun _ ->
-            projects
-            |> Seq.iter recover
         )
         prefix + Pack
             ==> prefix + Inject

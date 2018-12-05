@@ -1,4 +1,4 @@
-`Dap.Build` is a simple library for simplify Fake target creations for DotNet projects.
+`Dap.Build` is a simple library for simplify Fake target creation for DotNet projects.
 
 ## Current main features
 
