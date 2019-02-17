@@ -1,3 +1,6 @@
+## 0.6.9
+* Update dependencies with Fake 5.12.1
+
 ## 0.6.8
 * Remove Recover target which might cause inconsistent state and can be replaced by fetch or inject
 
