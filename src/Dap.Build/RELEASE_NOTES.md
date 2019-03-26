@@ -1,3 +1,6 @@
+## 0.6.10
+* Can build xamarin ios android and mac projects
+
 ## 0.6.9
 * Update dependencies with Fake 5.12.1
 

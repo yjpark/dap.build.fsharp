@@ -118,19 +118,24 @@ let private getApiKeyParam (apiKey : ApiKey) =
 
 let pack (options : Options) proj =
     Trace.traceFAKE "Pack NuGet Project: %s" proj
-    let setOptions = fun (options' : DotNet.PackOptions) ->
-        let releaseNotes = loadReleaseNotes proj
-        let pkgReleaseNotes = sprintf "/p:PackageReleaseNotes=\"%s\"" (String.toLines releaseNotes.Notes)
-        { options' with
-            Configuration = options.DotNet.GetConfiguration proj
-            NoBuild = true
-            Common =
-                { options'.Common with
-                    CustomParams = Some pkgReleaseNotes
-                    DotNetCliPath = "dotnet"
-                }
-        }
-    DotNet.pack setOptions proj
+    if DotNet.useMSBuild proj then
+        let configuration = options.DotNet.GetConfiguration proj
+        let useDebugConfig = (configuration = DotNet.BuildConfiguration.Debug)
+        Dap.Build.MSBuild.pack useDebugConfig proj
+    else
+        let setOptions = fun (options' : DotNet.PackOptions) ->
+            let releaseNotes = loadReleaseNotes proj
+            let pkgReleaseNotes = sprintf "/p:PackageReleaseNotes=\"%s\"" (String.toLines releaseNotes.Notes)
+            { options' with
+                Configuration = options.DotNet.GetConfiguration proj
+                NoBuild = true
+                Common =
+                    { options'.Common with
+                        CustomParams = Some pkgReleaseNotes
+                        DotNetCliPath = "dotnet"
+                    }
+            }
+        DotNet.pack setOptions proj
 
 let homePath =
     match Environment.OSVersion.Platform with
