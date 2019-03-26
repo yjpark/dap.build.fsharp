@@ -5,6 +5,7 @@ open Fake.Core
 open Fake.IO.Globbing.Operators
 
 #load "src/Dap.Build/Util.fs"
+#load "src/Dap.Build/MSBuild.fs"
 #load "src/Dap.Build/DotNet.fs"
 #load "src/Dap.Build/NuGet.fs"
 module NuGet = Dap.Build.NuGet

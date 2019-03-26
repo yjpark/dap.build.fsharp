@@ -79,6 +79,18 @@ let getPackage proj =
     let dir = Path.GetDirectoryName(proj)
     Path.GetFileName(dir)
 
+let useMSBuild proj =
+    let xamarinRegex = Regex("Xamarin\\.(iOS|Android|Mac)\\.(.*?)\\.targets")
+    File.ReadLines(proj)
+    |> Seq.tryPick (fun line ->
+        let m = xamarinRegex.Match(line)
+        if m.Success then Some m else None)
+    |> function
+        | None -> false
+        | Some m ->
+            traceSuccess <| sprintf "Use MSBuild: %A" m
+            true
+
 let isRunnable proj =
     let versionRegex = Regex("<OutputType>(.*?)</OutputType>", RegexOptions.IgnoreCase)
     File.ReadLines(proj)
@@ -101,32 +113,40 @@ let clean (_options : IOptions) proj =
 
 let restore (_options : IOptions) (noDependencies : bool) proj =
     Trace.traceFAKE "Restore Project: %s" proj
-    let setOptions = fun (options' : DotNet.RestoreOptions) ->
-        if noDependencies then
-            { options' with
-                Common =
-                    { options'.Common with
-                        CustomParams = Some "--no-dependencies"
-                    }
-            }
-        else
-            options'
-    DotNet.restore setOptions proj
+    if useMSBuild proj then
+        Dap.Build.MSBuild.restore proj
+    else
+        let setOptions = fun (options' : DotNet.RestoreOptions) ->
+            if noDependencies then
+                { options' with
+                    Common =
+                        { options'.Common with
+                            CustomParams = Some "--no-dependencies"
+                        }
+                }
+            else
+                options'
+        DotNet.restore setOptions proj
 
 let build (options : IOptions) (noDependencies : bool) proj =
     Trace.traceFAKE "Build Project: %s" proj
-    let setOptions = fun (options' : DotNet.BuildOptions) ->
-        let mutable param = "--no-restore"
-        if noDependencies then
-            param <- sprintf "%s --no-dependencies" param
-        { options' with
-            Configuration = options.GetConfiguration proj
-            Common =
-                { options'.Common with
-                    CustomParams = Some param
-                }
-        }
-    DotNet.build setOptions proj
+    if useMSBuild proj then
+        let configuration = options.GetConfiguration proj
+        let useDebugConfig = (configuration = DotNet.BuildConfiguration.Debug)
+        Dap.Build.MSBuild.build useDebugConfig proj
+    else
+        let setOptions = fun (options' : DotNet.BuildOptions) ->
+            let mutable param = "--no-restore"
+            if noDependencies then
+                param <- sprintf "%s --no-dependencies" param
+            { options' with
+                Configuration = options.GetConfiguration proj
+                Common =
+                    { options'.Common with
+                        CustomParams = Some param
+                    }
+            }
+        DotNet.build setOptions proj
 
 let private run' (cmd : string) (options : IOptions) proj =
     Trace.traceFAKE "Run Project: %s" proj
