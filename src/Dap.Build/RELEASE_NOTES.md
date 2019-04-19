@@ -1,3 +1,6 @@
+## 0.6.11
+* Update Fable targets to Fable.Core 3.0
+
 ## 0.6.10
 * Can build xamarin ios android and mac projects
 
