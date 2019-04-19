@@ -8,14 +8,18 @@ open Fake.Core
 open Fake.DotNet
 open Fake.IO
 open Fake.Core.TargetOperators
+module Yarn = Fake.JavaScript.Yarn
 
 module DapDotNet = Dap.Build.DotNet
 
 [<Literal>]
-let Bundle = "Bundle"
+let Install = "Install"
 
 [<Literal>]
 let Serve = "Serve"
+
+[<Literal>]
+let Bundle = "Bundle"
 
 type Options = {
     DevConfig : string
@@ -31,35 +35,30 @@ let options devCleans prodCleans = {
     ProdCleans = prodCleans
 }
 
-let bundle (options : Options) proj =
-    Trace.traceFAKE "Bundle Fable Project: %s" proj
-    let setOptions = fun (options' : DotNet.Options) ->
-        { options' with
+let private setYarnParam proj (param : Yarn.YarnParams) =
+        { param with
             WorkingDirectory = Path.GetDirectoryName(proj)
         }
-    let package = DapDotNet.getPackage proj
-    sprintf "webpack -- -p --config %s" options.ProdConfig
-    |> DotNet.exec setOptions "fable"
-    |> fun result ->
-        if not result.OK then
-            failwith <| sprintf "Bundle Fable Project Failed: %s -> [%i] %A %A" package result.ExitCode result.Messages result.Errors
+
+let install (options : Options) proj =
+    Trace.traceFAKE "Install Fable Project: %s" proj
+    Yarn.install <| setYarnParam proj
 
 let serve (options : Options) proj =
     Trace.traceFAKE "Watch Fable Project: %s" proj
-    let setOptions = fun (options' : DotNet.Options) ->
-        { options' with
-            WorkingDirectory = Path.GetDirectoryName(proj)
-        }
-    let package = DapDotNet.getPackage proj
-    sprintf "webpack-dev-server --port free -- --config %s" options.DevConfig
-    |> DotNet.exec setOptions "fable"
-    |> fun result ->
-        if not result.OK then
-            failwith <| sprintf "Watch Fable Project Failed: %s -> [%i] %A %A" package result.ExitCode result.Messages result.Errors
+    Yarn.exec "webpack-dev-server" <| setYarnParam proj
+
+let bundle (options : Options) proj =
+    Trace.traceFAKE "Bundle Fable Project: %s" proj
+    Yarn.exec "webpack" <| setYarnParam proj
 
 let private createTargets' (options : Options) noPrefix projects =
     let (label, prefix) = DapDotNet.getLabelAndPrefix noPrefix projects
     Target.setLastDescription <| sprintf "Serve %s" label
+    Target.create (prefix + Install) (fun _ ->
+        projects
+        |> Seq.iter (install options)
+    )
     Target.create (prefix + Serve) (fun _ ->
         File.deleteAll options.DevCleans
         projects

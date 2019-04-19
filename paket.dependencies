@@ -20,4 +20,4 @@ group Build
     nuget Fake.IO.Zip
     nuget Fake.Net.Http
     nuget Fake.Tools.Git
-
+    nuget Fake.JavaScript.Yarn

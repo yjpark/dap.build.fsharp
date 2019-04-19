@@ -9,3 +9,4 @@ group Build
     Fake.IO.Zip
     Fake.Net.Http
     Fake.Tools.Git
+    Fake.JavaScript.Yarn
