@@ -5,19 +5,26 @@ storage: none
 framework: auto-detect
 generate_load_scripts: true
 
-group Build
-    storage:none
-    source https://www.nuget.org/api/v2
-    framework: netstandard2.0
+nuget FSharp.Core
 
-    nuget Fake.Core.Target
-    nuget Fake.Core.Process
-    nuget Fake.Core.String
-    nuget Fake.Core.ReleaseNotes
-    nuget Fake.DotNet.Cli
-    nuget Fake.DotNet.NuGet
-    nuget Fake.IO.FileSystem
-    nuget Fake.IO.Zip
-    nuget Fake.Net.Http
-    nuget Fake.Tools.Git
-    nuget Fake.JavaScript.Yarn
+# Not know the reason, though MSBuild 16 had an issue with `dotnet restore`
+#   error NU1202: Package Microsoft.Build 16.0.461 is not compatible with netstandard2.0 (.NETStandard,Version=v2.0). Package Microsoft.Build 16.0.461 supports:
+#   error NU1202:   - net472 (.NETFramework,Version=v4.7.2)
+#   error NU1202:   - netcoreapp2.1 (.NETCoreApp,Version=v2.1)
+#
+# It's weird to me since other netstandard2.0 project don't have this issue
+# I think this might be a paket issue, but not sure
+# Current workaround is to specifi MSBuild 15 in dependencies
+nuget Microsoft.Build < 16
+
+nuget Fake.Core.Target
+nuget Fake.Core.Process
+nuget Fake.Core.String
+nuget Fake.Core.ReleaseNotes
+nuget Fake.DotNet.Cli
+nuget Fake.DotNet.NuGet
+nuget Fake.IO.FileSystem
+nuget Fake.IO.Zip
+nuget Fake.Net.Http
+nuget Fake.Tools.Git
+nuget Fake.JavaScript.Yarn

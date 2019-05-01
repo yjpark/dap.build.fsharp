@@ -1,3 +1,6 @@
+## 0.6.12
+* Update to FAKE 5.13.3
+
 ## 0.6.11
 * Update Fable targets to Fable.Core 3.0
 
