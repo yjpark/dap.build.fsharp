@@ -1,3 +1,6 @@
+## 0.7.1
+* Change target framework back to netstandard2.0 since FAKE is with netcoreapp2.1
+
 ## 0.7.0
 * Update target framework to netstandard2,1 build with DotNet Core 3.0
 

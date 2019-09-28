@@ -128,7 +128,7 @@ let pack (options : Options) proj =
             let pkgReleaseNotes = sprintf "/p:PackageReleaseNotes=\"%s\"" (String.toLines releaseNotes.Notes)
             { options' with
                 Configuration = options.DotNet.GetConfiguration proj
-                //NoBuild = true
+                NoBuild = true
                 Common =
                     { options'.Common with
                         CustomParams = Some pkgReleaseNotes
