@@ -128,7 +128,9 @@ let pack (options : Options) proj =
             let pkgReleaseNotes = sprintf "/p:PackageReleaseNotes=\"%s\"" (String.toLines releaseNotes.Notes)
             { options' with
                 Configuration = options.DotNet.GetConfiguration proj
-                NoBuild = true
+                //Got this error when building with dotnet core 3.0
+                //error NETSDK1085: The 'NoBuild' property was set to true but the 'Build' target was invoked.
+                //NoBuild = true
                 Common =
                     { options'.Common with
                         CustomParams = Some pkgReleaseNotes

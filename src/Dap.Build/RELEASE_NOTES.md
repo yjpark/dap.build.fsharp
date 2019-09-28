@@ -1,3 +1,6 @@
+## 0.7.2
+* Remove NoBuild param in dotent pack which got NETSDK1085 error when building with dotnet core 3.0
+
 ## 0.7.1
 * Change target framework back to netstandard2.0 since FAKE is with netcoreapp2.1
 
