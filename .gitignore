@@ -328,3 +328,4 @@ ASALocalRun/
 .mfractor/
 bin
 obj
+.ionide/

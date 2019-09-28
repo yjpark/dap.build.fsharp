@@ -1,3 +1,6 @@
+## 0.7.0
+* Update target framework to netstandard2,1 build with DotNet Core 3.0
+
 ## 0.6.14
 * Update to FAKE 5.16.1
 

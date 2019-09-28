@@ -35,7 +35,7 @@ let options devCleans prodCleans = {
     ProdCleans = prodCleans
 }
 
-let private setYarnParam proj (param : Yarn.YarnParams) =
+let private setYarnParam (proj : string) (param : Yarn.YarnParams) =
         { param with
             WorkingDirectory = Path.GetDirectoryName(proj)
         }

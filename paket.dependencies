@@ -15,7 +15,9 @@ nuget FSharp.Core
 # It's weird to me since other netstandard2.0 project don't have this issue
 # I think this might be a paket issue, but not sure
 # Current workaround is to specifi MSBuild 15 in dependencies
-nuget Microsoft.Build < 16
+# nuget Microsoft.Build < 16
+
+# nuget Microsoft.Build
 
 nuget Fake.Core.Target
 nuget Fake.Core.Process

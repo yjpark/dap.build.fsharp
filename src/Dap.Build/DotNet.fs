@@ -75,7 +75,7 @@ let getConfigFolder (config : DotNet.BuildConfiguration) =
     | DotNet.Release -> "Release"
     | DotNet.Custom config -> config
 
-let getPackage proj =
+let getPackage (proj : string) =
     let dir = Path.GetDirectoryName(proj)
     Path.GetFileName(dir)
 

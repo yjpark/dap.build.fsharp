@@ -98,7 +98,7 @@ let checkVersion proj (releaseNotes : ReleaseNotes.ReleaseNotes) =
                 failwith <| sprintf "Mismatched version: project file => %s, RELEASE_NOTES.md => %s " version releaseNotes.NugetVersion
     releaseNotes
 
-let loadReleaseNotes proj =
+let loadReleaseNotes (proj : string) =
     let dir = Path.GetDirectoryName(proj)
     dir </> "RELEASE_NOTES.md"
     |> ReleaseNotes.load
@@ -128,7 +128,7 @@ let pack (options : Options) proj =
             let pkgReleaseNotes = sprintf "/p:PackageReleaseNotes=\"%s\"" (String.toLines releaseNotes.Notes)
             { options' with
                 Configuration = options.DotNet.GetConfiguration proj
-                NoBuild = true
+                //NoBuild = true
                 Common =
                     { options'.Common with
                         CustomParams = Some pkgReleaseNotes
@@ -206,7 +206,7 @@ let doInject (package : string) (version : string) (pkg : string) =
         pkg
     ]
 
-let inject (options : Options) proj =
+let inject (options : Options) (proj : string) =
     Trace.traceFAKE "Inject NuGet Project: %s" proj
     let dir = Path.GetDirectoryName(proj)
     let package = Path.GetFileName(dir)
@@ -242,8 +242,8 @@ let doFetch (feed : Feed) (package : string) (version : string) =
     if DirectoryInfo.exists (DirectoryInfo.ofPath originalPath) then
         Shell.deleteDir originalPath
 
-let fetch (feed : Feed) proj =
-    Trace.traceFAKE "Fatch NuGet Project: %s" proj
+let fetch (feed : Feed) (proj : string) =
+    Trace.traceFAKE "Fetch NuGet Project: %s" proj
     let dir = Path.GetDirectoryName(proj)
     let package = Path.GetFileName(dir)
     let releaseNotes = loadReleaseNotes proj
