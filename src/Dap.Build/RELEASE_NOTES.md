@@ -1,3 +1,6 @@
+## 0.7.3
+* Remove dotnet build from fable serve and bundle dependencies which is not working with latest fable and Thoth.Json
+
 ## 0.7.2
 * Remove NoBuild param in dotent pack which got NETSDK1085 error when building with dotnet core 3.0
 

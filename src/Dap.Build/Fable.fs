@@ -70,12 +70,14 @@ let private createTargets' (options : Options) noPrefix projects =
         projects
         |> Seq.iter (bundle options)
     )
+    (* Fable projects can't be build properly now, got issue with Thoth
     prefix + DapDotNet.Build
         ==> prefix + Serve
     |> ignore
     prefix + DapDotNet.Build
         ==> prefix + Bundle
     |> ignore
+    *)
 
 let createPerProjectTarget options proj =
     createTargets' options false [proj]
