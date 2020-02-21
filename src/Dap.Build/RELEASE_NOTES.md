@@ -1,3 +1,6 @@
+## 0.7.4
+* Update to FAKE 5.19.1
+
 ## 0.7.3
 * Remove dotnet build from fable serve and bundle dependencies which is not working with latest fable and Thoth.Json
 
