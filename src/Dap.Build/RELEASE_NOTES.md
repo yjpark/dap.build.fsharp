@@ -1,3 +1,6 @@
+## 0.7.5
+* Update to FAKE 5.20.3
+
 ## 0.7.4
 * Update to FAKE 5.19.1
 
