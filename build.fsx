@@ -1,4 +1,4 @@
-(* FAKE: 5.16.1 *)
+(* FAKE: 5.22.0 *)
 #r "paket: groupref Main //"
 #load ".fake/build.fsx/intellisense.fsx"
 open Fake.Core
