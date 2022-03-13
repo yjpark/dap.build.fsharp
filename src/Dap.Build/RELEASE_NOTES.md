@@ -1,5 +1,5 @@
 ## 0.8.0
-* Update with Dotnet 6.0, FAKE 5.22.0, Paket 6.2.1
+* Update with Dotnet 6.0 FAKE 5.22.0 Paket 6.2.1
 
 ## 0.7.5
 * Update to FAKE 5.20.3
