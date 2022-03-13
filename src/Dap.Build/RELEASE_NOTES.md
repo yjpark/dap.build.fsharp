@@ -1,3 +1,6 @@
+## 0.8.1
+* Change target to net6.0
+
 ## 0.8.0
 * Update with Dotnet 6.0 FAKE 5.22.0 Paket 6.2.1
 
