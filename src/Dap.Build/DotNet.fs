@@ -269,7 +269,7 @@ let create (options : IOptions) projects =
 
 let createAndRun (options : IOptions) projects =
     create options projects
-    Target.runOrDefault Build
+    Target.runOrDefaultWithArguments Build
 
 let createPrepare' (noPrefix : bool) (action : unit -> unit) (projects : string list) =
     let (label, prefix) =

@@ -315,7 +315,7 @@ let create (options : Options) feed projects =
 
 let createAndRun (options : Options) feed projects =
     create options feed projects
-    Target.runOrDefault Pack
+    Target.runOrDefaultWithArguments Pack
 
 let extendTargets options =
     createTargets' true options true

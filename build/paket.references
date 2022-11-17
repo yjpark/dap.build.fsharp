@@ -1,0 +1,13 @@
+FSharp.Core
+
+Fake.Core.Target
+Fake.Core.Process
+Fake.Core.String
+Fake.Core.ReleaseNotes
+Fake.DotNet.Cli
+Fake.DotNet.NuGet
+Fake.IO.FileSystem
+Fake.IO.Zip
+Fake.Net.Http
+Fake.Tools.Git
+Fake.JavaScript.Yarn

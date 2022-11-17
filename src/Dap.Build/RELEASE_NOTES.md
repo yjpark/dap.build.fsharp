@@ -1,3 +1,6 @@
+## 0.9.0
+* Update with Dotnet 7.0
+
 ## 0.8.1
 * Change target to net6.0
 
