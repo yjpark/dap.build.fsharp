@@ -1,3 +1,6 @@
+## 0.10.0
+* Update with Dotnet 8.0
+
 ## 0.9.0
 * Update with Dotnet 7.0
 
